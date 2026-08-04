@@ -517,6 +517,10 @@
             </div>
           </div>
           
+          <p style="font-size:11px; color:var(--ink-dimmer); margin:10px 0 0; font-family:var(--mono); line-height:1.6;">
+            💡 <b>Dica:</b> Se você cozinhar ou não gastar tudo hoje, esse valor acumula e o seu limite diário nos próximos dias aumenta!
+          </p>
+
           <!-- SIMULADOR DE ALIMENTAÇÃO -->
           <div style="margin-top:20px; padding:16px; background:rgba(255,255,255,0.02); border-radius:6px; border:1px dashed rgba(255,255,255,0.1);">
             <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-family:var(--mono); margin-bottom:8px; font-weight:600;">Simulador: E se eu gastar X por dia?</div>
@@ -1062,7 +1066,7 @@ function updateFoodSim(month, daysLeft, foodBudget) {
   }
 }
 
-function updatePurchaseSim(month, year, m, foodSpent, daysLeft, totalSaidasFixas, totalSaidasPagas, goalInReais, totalEntradas) {
+function updatePurchaseSim(month, year, m) {
   const desc = document.getElementById('simPurchDesc').value || 'A Compra';
   const val = parseFloat(document.getElementById('simPurchValue').value);
   const pDay = parseInt(document.getElementById('simPurchDay').value);
@@ -1127,65 +1131,7 @@ function updatePurchaseSim(month, year, m, foodSpent, daysLeft, totalSaidasFixas
   }
   timelineHTML += '</div>';
 
-  // FOOD LIMIT PROJECTION
-  const foodMode = month.foodCalcMode || 'total';
-  let saidasGlobais = 0;
-  if(foodMode === 'total' || foodMode === 'seguro') saidasGlobais = totalSaidasFixas + goalInReais + val;
-  else saidasGlobais = totalSaidasPagas + goalInReais + val;
-
-  let limitData = [];
-  let tempCash = baseFlow.balanceToday;
-  if (actualPurchaseDay === baseFlow.todayDay) { tempCash -= val; }
-
-  for(let d = baseFlow.todayDay || 1; d <= totalDays; d++){
-      if(d > (baseFlow.todayDay || 1)) {
-          let dEvts = events.filter(e => e.day === d);
-          dEvts.forEach(e => tempCash += e.amount);
-      }
-      let renda_d = 0;
-      if (foodMode === 'total') { renda_d = totalEntradas; } 
-      else {
-          let rec = (Number(month.saldoAnterior)||0);
-          if (d >= 1) rec += (Number(month.fixedIncomeValue)||0);
-          month.freelas.forEach(f => { let pD = Number(f.payDay) || totalDays; if (pD <= d) rec += (Number(f.value)||0); });
-          renda_d = rec;
-      }
-      let projBudget = renda_d - saidasGlobais;
-      let projRem = projBudget - foodSpent;
-      let daysRem = Math.max(totalDays - d + 1, 1);
-      let rawLim = Math.max(projRem, 0) / daysRem;
-
-      limitData.push({
-          day: d,
-          limit: tempCash < 0 ? 0 : rawLim,
-          incomes: events.filter(e => e.day === d && e.amount > 0).map(e => e.label.replace('Recebimento · ', ''))
-      });
-  }
-
-  let limitToday = limitData[0].limit;
-  let recovery = null;
-  for (let i = 1; i < limitData.length; i++) {
-      if (limitData[i].limit > limitToday + 0.05) { 
-          recovery = limitData[i]; break;
-      }
-  }
-
-  let foodText = '';
-  if (recovery) {
-      let incNames = recovery.incomes.length > 0 ? recovery.incomes.join(' e ') : 'novos recebimentos';
-      let dayBefore = recovery.day - 1;
-      if (limitToday === 0) {
-          foodText = `<div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1); font-size:12px; color:var(--ink-dim);">⚠️ <b>Atenção:</b> Seu limite diário de alimentação ficará <b style="color:var(--red);">zerado</b> até o dia ${dayBefore}. No dia ${recovery.day}, com o recebimento de <b>${incNames}</b>, ele será restabelecido para <b style="color:var(--accent);">${brl(recovery.limit)}</b> diários.</div>`;
-      } else {
-          foodText = `<div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1); font-size:12px; color:var(--ink-dim);">Com essa compra, o limite diário de alimentação passaria a ser <b style="color:var(--accent);">${brl(limitToday)}</b> até o dia ${dayBefore}. No dia ${recovery.day}, com o recebimento de <b>${incNames}</b>, ele sobe para <b style="color:var(--green);">${brl(recovery.limit)}</b> diários.</div>`;
-      }
-  } else {
-      if (limitToday === 0) {
-          foodText = `<div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1); font-size:12px; color:var(--red);">⚠️ <b>Atenção:</b> Com essa compra, seu saldo não suporta mais gastos. O limite diário de alimentação ficará <b style="color:var(--red);">zerado</b> pelo restante do mês!</div>`;
-      } else {
-          foodText = `<div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1); font-size:12px; color:var(--ink-dim);">Com essa compra, o limite diário de alimentação passaria a ser <b style="color:var(--accent);">${brl(limitToday)}</b> pelo restante do mês.</div>`;
-      }
-  }
+  let warningText = `<div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1); font-size:11px; color:var(--ink-dimmer);">⚠️ <b>Nota:</b> Essa simulação projeta o impacto no seu saldo com base nas contas e freelas. <b>Ela não leva em conta os valores de alimentação</b>.</div>`;
 
   if (deficitAlert) {
     let resolucaoTxt = 'Mesmo somando todos os freelas futuros, o saldo continuará em débito no mês!';
@@ -1202,7 +1148,7 @@ function updatePurchaseSim(month, year, m, foodSpent, daysLeft, totalSaidasFixas
         <div class="icon">❌</div>
         <div>Se comprar <b>${desc}</b>, a conta do <b>dia ${deficitAlert.day}</b> não vai ter dinheiro (ficará ${brl(deficitAlert.balance)}). <br><br><span style="color:var(--accent);">${resolucaoTxt}</span></div>
       </div>
-      ${foodText}
+      ${warningText}
     </div>`;
   } else {
     out.innerHTML = `<div class="cash-ok" style="margin-bottom:0;">
@@ -1210,7 +1156,7 @@ function updatePurchaseSim(month, year, m, foodSpent, daysLeft, totalSaidasFixas
         <div class="icon" style="font-size:16px;">✅</div>
         <div>Se comprar <b>${desc}</b>, você vai continuar com todas as contas em dia. O seu menor saldo no mês será de <b>${brl(lowestPoint.balance)}</b> no dia ${lowestPoint.day}.</div>
       </div>
-      ${foodText}
+      ${warningText}
     </div>`;
   }
   
@@ -1263,8 +1209,7 @@ function computeAll(month, year, m){
   document.getElementById('goalInReais').textContent = brl(goalInReais);
 
   const freeToSpendTotal = totalRendaTotal - totalSaidasFixas - goalInReais;
-  const freeToSpendSeguro = totalRendaAtual - totalSaidasFixas - goalInReais;
-  const freeToSpendLivre = totalRendaAtual - totalSaidasPagas - goalInReais;
+  const freeToSpendAtual = totalRendaAtual - totalSaidasFixas - goalInReais;
 
   const freeEl = document.getElementById('freeToSpend');
   freeEl.textContent = brl(freeToSpendTotal); freeEl.className = 'val ' + (freeToSpendTotal >= 0 ? 'pos' : 'neg');
@@ -1281,12 +1226,7 @@ function computeAll(month, year, m){
     alertBox.innerHTML = `<div class="cash-warning"><div class="icon">⚠️</div><div><b>Atenção:</b> Sua sobra projetada está <b>abaixo de 10%</b> do total que você vai receber no mês. Fique de olho pra não passar aperto financeiro!</div></div>`;
   } else { alertBox.innerHTML = ''; }
 
-  const foodCalcMode = month.foodCalcMode || 'total';
-  let foodBudget = 0;
-  if (foodCalcMode === 'total') foodBudget = Math.max(freeToSpendTotal, 0);
-  else if (foodCalcMode === 'seguro') foodBudget = Math.max(freeToSpendSeguro, 0);
-  else foodBudget = Math.max(freeToSpendLivre, 0);
-
+  const foodBudget = month.foodCalcMode === 'total' ? Math.max(freeToSpendTotal, 0) : Math.max(freeToSpendAtual, 0);
   const foodRemaining = foodBudget - foodSpent;
   document.getElementById('foodSpentLabel').textContent = brl(foodSpent);
   document.getElementById('foodBudgetLabel').textContent = brl(foodBudget);
@@ -1304,10 +1244,8 @@ function computeAll(month, year, m){
   
   const sim = simulateCashFlow(month, year, m);
   
-  // Limite Diário (Se o modo for Seguro ou Total e o saldo de hoje estiver negativo, o limite de hj é 0)
-  // No modo Livre, deixamos a matemática do FreeToSpendLivre ditar se é 0 ou não.
   let dailyLimit = 0;
-  if(sim.balanceToday < 0 && (foodCalcMode === 'seguro' || foodCalcMode === 'total')) {
+  if(sim.balanceToday < 0 && (month.foodCalcMode === 'seguro' || month.foodCalcMode === 'total')) {
      dailyLimit = 0;
   } else {
      dailyLimit = Math.max(foodRemaining, 0) / daysLeft;
@@ -1317,7 +1255,7 @@ function computeAll(month, year, m){
   foodPerDayInput.value = brl(dailyLimit); foodPerDayInput.style.color = dailyLimit > 0 ? 'var(--accent)' : 'var(--red)';
 
   updateFoodSim(month, daysLeft, foodBudget);
-  updatePurchaseSim(month, year, m, foodBudget, foodSpent, daysLeft, totalSaidasFixas, totalSaidasPagas, goalInReais, totalRendaTotal);
+  updatePurchaseSim(month, year, m);
 
   renderPie([
     { label:'Casa', value: totalCasa, color:'#e07856' }, { label:'Assinaturas', value: totalAssinaturas, color:'#f2c14e' },
