@@ -739,7 +739,6 @@ function emptyMonth(){
 
 function getMonth(key){ 
   if(!db.months[key]){ db.months[key] = emptyMonth(); saveDB(); } 
-  // Migração de dados de versões anteriores para manter compatibilidade
   if(db.months[key].foodCalcMode === 'atual') db.months[key].foodCalcMode = 'seguro';
   return db.months[key]; 
 }
@@ -1209,7 +1208,8 @@ function computeAll(month, year, m){
   document.getElementById('goalInReais').textContent = brl(goalInReais);
 
   const freeToSpendTotal = totalRendaTotal - totalSaidasFixas - goalInReais;
-  const freeToSpendAtual = totalRendaAtual - totalSaidasFixas - goalInReais;
+  const freeToSpendSeguro = totalRendaAtual - totalSaidasFixas - goalInReais;
+  const freeToSpendLivre = totalRendaAtual - totalSaidasPagas - goalInReais;
 
   const freeEl = document.getElementById('freeToSpend');
   freeEl.textContent = brl(freeToSpendTotal); freeEl.className = 'val ' + (freeToSpendTotal >= 0 ? 'pos' : 'neg');
@@ -1226,7 +1226,12 @@ function computeAll(month, year, m){
     alertBox.innerHTML = `<div class="cash-warning"><div class="icon">⚠️</div><div><b>Atenção:</b> Sua sobra projetada está <b>abaixo de 10%</b> do total que você vai receber no mês. Fique de olho pra não passar aperto financeiro!</div></div>`;
   } else { alertBox.innerHTML = ''; }
 
-  const foodBudget = month.foodCalcMode === 'total' ? Math.max(freeToSpendTotal, 0) : Math.max(freeToSpendAtual, 0);
+  const foodCalcMode = month.foodCalcMode || 'total';
+  let foodBudget = 0;
+  if (foodCalcMode === 'total') foodBudget = Math.max(freeToSpendTotal, 0);
+  else if (foodCalcMode === 'seguro') foodBudget = Math.max(freeToSpendSeguro, 0);
+  else foodBudget = Math.max(freeToSpendLivre, 0);
+
   const foodRemaining = foodBudget - foodSpent;
   document.getElementById('foodSpentLabel').textContent = brl(foodSpent);
   document.getElementById('foodBudgetLabel').textContent = brl(foodBudget);
@@ -1245,7 +1250,7 @@ function computeAll(month, year, m){
   const sim = simulateCashFlow(month, year, m);
   
   let dailyLimit = 0;
-  if(sim.balanceToday < 0 && (month.foodCalcMode === 'seguro' || month.foodCalcMode === 'total')) {
+  if(sim.balanceToday < 0 && (foodCalcMode === 'seguro' || foodCalcMode === 'total')) {
      dailyLimit = 0;
   } else {
      dailyLimit = Math.max(foodRemaining, 0) / daysLeft;
