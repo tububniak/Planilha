@@ -104,7 +104,7 @@
   .table-scroll::-webkit-scrollbar-thumb:hover { background: var(--ink-dimmer); }
   .min-w-row { min-width: 680px; } 
 
-  /* Rows */
+  /* Rows Layout Desktop */
   .row{
     display:grid; grid-template-columns: 1fr 130px 100px 32px; gap:10px; align-items:center;
     padding:8px 6px; border-bottom:1px solid rgba(255,255,255,0.03); border-radius: 4px; transition: background 0.15s ease;
@@ -113,7 +113,11 @@
   .row.freela-row{ grid-template-columns: 78px 78px 1fr 1fr 110px 32px; align-items: start; }
   .row.expense-row{ grid-template-columns: 1fr 120px 80px 100px 32px; }
   .row.sub-row{ grid-template-columns: 1fr 110px 70px 100px 32px; }
+  .row.food-row{ grid-template-columns: 90px 1fr 100px 32px; }
   
+  .fixed-row { grid-template-columns: 1fr 130px; border-bottom:none; padding-bottom:0; }
+  .fixed-row > div { align-self: flex-end; }
+
   .row input, .row select{
     background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink);
     padding:9px 12px; border-radius:6px; font-size:13px; font-family: inherit; width:100%; transition: all 0.2s ease;
@@ -124,7 +128,7 @@
   .row .paid-toggle{
     display:flex; align-items:center; justify-content:center; cursor:pointer; user-select:none;
     font-size:11px; font-weight:600; font-family:var(--mono); padding:8px 4px; border-radius:5px;
-    border:1px solid var(--line); color:var(--ink-dimmer); text-align:center; transition: all 0.2s ease;
+    border:1px solid var(--line); color:var(--ink-dimmer); text-align:center; transition: all 0.2s ease; height:100%;
   }
   .row .paid-toggle.paid{ background: rgba(111,191,139,0.15); border-color: var(--green); color: var(--green); }
   .row .del-btn{ background:none; border:none; color:var(--ink-dimmer); cursor:pointer; font-size:18px; text-align:center; transition:color .15s; }
@@ -144,15 +148,11 @@
   .col-label.freela-label{ grid-template-columns: 78px 78px 1fr 1fr 110px 32px; }
   .col-label.sub-label{ grid-template-columns: 1fr 110px 70px 100px 32px; }
   .col-label.expense-label{ grid-template-columns: 1fr 120px 80px 100px 32px; }
+  .col-label.food-label{ grid-template-columns: 90px 1fr 100px 32px; }
 
   /* Summary & Widgets */
   .splice-grid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:24px; }
-  @media (max-width:768px){ 
-    .splice-grid{ grid-template-columns:1fr; }
-    .timeline-header { flex-direction:column; align-items:flex-start; gap:16px; }
-    .month-nav { width:100%; justify-content:space-between; }
-  }
-
+  
   .stat-line{
     display:flex; justify-content:space-between; align-items:baseline; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:14px;
   }
@@ -228,6 +228,7 @@
   }
   .save-flash.show{ opacity:1; transform:translateY(0); }
 
+  .sim-purch-grid { display: grid; grid-template-columns: 1fr 140px 100px; gap: 10px; margin-bottom: 16px; }
   .sim-input {
     background:var(--bg); border:1px solid var(--line); color:var(--ink); padding:8px 12px; border-radius:6px; font-family:var(--mono); width:100%; transition: border-color 0.2s;
   }
@@ -241,77 +242,77 @@
   .sim-timeline-item .t-desc { flex: 1; }
   .sim-timeline-item .t-balance { text-align: right; font-weight: bold; }
 
-  /* ============ RESPONSIVO (celular / iPhone) ============ */
-  @media (max-width: 640px){
-    body{ padding: 16px 10px 80px; }
+  /* =========================================
+     MODO CELULAR (RESPONSIVO / CARDS)
+     ========================================= */
+  @media (max-width: 768px) {
+    .wrap { padding: 16px 10px 80px; }
+    .splice-grid { grid-template-columns: 1fr; }
+    .timeline-header { flex-direction: column; align-items: flex-start; gap: 16px; padding: 16px; }
+    .month-nav { width: 100%; justify-content: space-between; }
+    .reel-body { padding: 16px 12px; }
 
-    .timeline-header{ padding:16px; }
-    .brand{ font-size:20px; }
-    .month-nav{ gap:8px; }
-    .month-nav button{ height:34px; font-size:14px; }
-    .month-nav .btn-icon{ width:34px; }
-    .month-label{ min-width:0; font-size:13px; }
+    /* Remove a rolagem horizontal */
+    .table-scroll { overflow-x: visible !important; padding-bottom: 0; }
+    .min-w-row { min-width: 100% !important; }
+    .col-label { display: none !important; }
 
-    .reel-head{ padding:12px 14px; }
-    .reel-body{ padding:14px; }
-    .reel-total{ font-size:15px; }
-
-    /* Remove o scroll horizontal forçado: tabelas viram cartões empilhados */
-    .table-scroll{ overflow-x: visible; }
-    .min-w-row{ min-width: 0; }
-
-    /* Esconde o cabeçalho de colunas (não faz sentido empilhado) */
-    .col-label{ display:none !important; }
-
-    /* Toda .row vira um cartão em coluna única, com cada campo ocupando a largura toda */
-    .row{
-      display:flex; flex-direction:column; gap:8px;
-      background: rgba(255,255,255,0.02); border:1px solid var(--line);
-      border-radius:8px; padding:12px; margin-bottom:10px;
+    /* Transforma as Linhas em Cards Empilhados */
+    .row {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 8px;
     }
-    .row:hover{ background: rgba(255,255,255,0.02); }
-    .row input, .row select{ width:100%; }
+    .row > * { margin: 0 !important; }
 
-    /* Botão de excluir some para o canto superior direito do cartão */
-    .row{ position:relative; padding-right:52px; }
-    .row .del-btn{
-      position:absolute; top:8px; right:8px; font-size:20px;
-      background:var(--bg-panel-2); border:1px solid var(--line); border-radius:6px;
-      width:30px; height:30px; display:flex; align-items:center; justify-content:center;
-    }
+    /* Adaptação dos campos dentro do Card */
+    .row.expense-row > input[data-field="label"],
+    .row.sub-row > input[data-field="label"],
+    .row.food-row > input[data-field="label"] { flex: 1 1 100%; font-weight: bold; font-size: 14px; }
 
-    /* Linha do saldo anterior / renda fixa (grid inline via style="") também vira coluna */
-    .row[style*="grid-template-columns"]{ display:flex !important; flex-direction:column; }
+    .row.expense-row > input[data-field="value"],
+    .row.expense-row > input[data-field="dueDay"],
+    .row.sub-row > input[data-field="value"],
+    .row.sub-row > input[data-field="day"],
+    .row.food-row > input[data-field="day"],
+    .row.food-row > input[data-field="value"] { flex: 1 1 40%; }
 
-    /* Toggle de "pago" ocupa a largura toda, mais fácil de tocar */
-    .row .paid-toggle{ padding:12px 4px; }
+    .row.expense-row > .paid-toggle,
+    .row.sub-row > .paid-toggle { flex: 1 1 60%; height: 42px; font-size: 13px; }
 
-    .splice-grid{ gap:16px; }
-    .pie-wrap svg.pie{ width:180px; height:180px; }
+    /* Cards de Freelas */
+    .row.freela-row > input[data-field="workDay"],
+    .row.freela-row > input[data-field="payDay"] { flex: 1 1 40%; }
+    .row.freela-row > div { flex: 1 1 100%; }
+    .row.freela-row > input[data-field="client"] { flex: 1 1 100%; font-weight: bold; }
+    .row.freela-row > input[data-field="value"] { flex: 1 1 auto; }
 
-    .food-inputs > div{ min-width: 100%; }
-    .goal-input-row input{ width:100%; }
-    .goal-input-row{ flex-wrap:wrap; }
-
-    .save-flash{ bottom:14px; right:14px; left:14px; text-align:center; }
-
-    /* Simulador de compras: inputs empilhados */
-    div[style*="grid-template-columns: 1fr 140px 100px"]{
-      display:flex !important; flex-direction:column; gap:10px !important;
+    /* Botão Delete Gigante pro dedo */
+    .row > .del-btn {
+      flex: 0 0 42px; height: 42px;
+      background: rgba(217,105,95,0.1); border-radius: 6px; color: var(--red);
+      display: flex; align-items: center; justify-content: center;
     }
 
-    /* Visão anual: reduz fonte e paddings pra caber sem cortar */
-    #yearTableContainer .row, #yearTableContainer .col-label{
-      grid-template-columns: 60px 1fr 1fr 1fr !important; gap:4px !important;
-      font-size:11px; display:grid !important; flex-direction:unset;
-      padding:8px 4px !important; position:static;
-    }
-    #yearTableContainer .row .del-btn{ display:none; }
-  }
+    /* Linhas Fixas no Topo (Saldo / Renda Fixa) */
+    .fixed-row { display: flex !important; flex-wrap: wrap; background: none; border: none; padding: 0; margin-bottom:20px; }
+    .fixed-row > div { flex: 1 1 100%; margin-bottom: 6px; align-self: flex-start; }
+    .fixed-row > input { flex: 1 1 100%; margin-bottom: 8px; }
 
-  @media (max-width: 380px){
-    .brand{ font-size:18px; }
-    .month-nav button{ font-size:13px; padding:0 8px; }
+    /* Simulador Grid */
+    .sim-purch-grid { display: flex !important; flex-wrap: wrap; }
+    .sim-purch-grid > #simPurchDesc { flex: 1 1 100%; }
+    .sim-purch-grid > #simPurchValue, .sim-purch-grid > #simPurchDay { flex: 1 1 40%; }
+
+    /* Tabela Anual (Mantém o grid mas ajusta o tamanho) */
+    #yearTableContainer .col-label { display: grid !important; grid-template-columns: 50px 1fr 1fr 1fr; font-size: 9px; padding-bottom: 8px; }
+    #yearTableContainer .row { display: grid !important; grid-template-columns: 50px 1fr 1fr 1fr !important; background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.04); padding: 12px 0; font-size: 12px; }
+    #yearTableContainer .row > div { padding: 0; font-size: 11px; }
   }
 </style>
 </head>
@@ -369,18 +370,16 @@
           <div class="min-w-row">
             <div style="margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.04);">
               <div class="col-label"><span>Saldo em conta (mês anterior/reserva)</span><span>Valor</span><span></span><span></span></div>
-              <div class="row" style="grid-template-columns: 1fr 130px 0px 32px; border-bottom:none; padding-bottom:0; background:none;">
+              <div class="row fixed-row">
                 <div style="font-size:12px; color:var(--ink-dim); padding-left:6px;">(Opcional) Dinheiro extra que sobrou e tá na conta</div>
                 <input type="number" id="saldoAnteriorValue" placeholder="0,00" step="0.01">
-                <span></span><span></span>
               </div>
             </div>
             <div style="margin-bottom:18px;">
               <div class="col-label"><span>Fixo mensal</span><span>Valor</span><span></span><span></span></div>
-              <div class="row" style="grid-template-columns: 1fr 130px 0px 32px;">
+              <div class="row fixed-row">
                 <input type="text" id="fixedIncomeLabel" value="Renda fixa" placeholder="ex: Salário / Contrato fixo">
                 <input type="number" id="fixedIncomeValue" placeholder="0,00" step="0.01">
-                <span></span><span></span>
               </div>
             </div>
             <div class="col-label freela-label">
@@ -531,7 +530,7 @@
           <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--line);">
             <div class="table-scroll">
               <div class="min-w-row">
-                <div class="col-label" style="grid-template-columns: 90px 1fr 100px 32px;">
+                <div class="col-label food-label">
                   <span>Data</span><span>Descrição</span><span>Valor</span><span></span>
                 </div>
                 <div id="foodEntryList"></div>
@@ -577,7 +576,7 @@
         <p style="font-size:12px; color:var(--ink-dimmer); margin:0 0 16px; font-family:var(--mono); line-height:1.6;">
           Quer comprar algo? Coloque aqui para simular se a conta vai aguentar o tranco no mês sem te deixar no vermelho. O extrato vai mostrar a trajetória do seu saldo após a compra.
         </p>
-        <div style="display:grid; grid-template-columns: 1fr 140px 100px; gap:10px; margin-bottom:16px;">
+        <div class="sim-purch-grid">
            <input type="text" id="simPurchDesc" class="sim-input" placeholder="O que vai comprar?">
            <input type="number" id="simPurchValue" class="sim-input" placeholder="Valor (R$)">
            <input type="number" id="simPurchDay" class="sim-input" placeholder="Dia (1-31)" min="1" max="31">
@@ -660,7 +659,7 @@
 
 <script>
 /* ============ CONFIG & INIT ============ */
-const STORAGE_KEY = 'organizadorFinanceiro_v10';
+const STORAGE_KEY = 'organizadorFinanceiro_v11';
 const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const CASA_CATEGORIES = ['Condomínio','Internet','Energia','Água','Gás','MEI / Contadora','IPTU','Aluguel','Outro'];
 const OUTROS_CATEGORIES = ['Combustível','Farmácia','Lazer','Vestuário','Transporte','Manutenção','Outro'];
@@ -731,7 +730,7 @@ document.getElementById('toggleYear').addEventListener('click', () => {
 function renderYearView() {
   const { year } = parseKey(currentKey); document.getElementById('yearTitle').textContent = year;
   let html = `<div style="display:flex; flex-direction:column; gap:8px;">`;
-  html += `<div class="col-label" style="grid-template-columns: 80px 1fr 1fr 1fr; border-bottom:1px solid var(--line); padding-bottom:10px;">
+  html += `<div class="col-label" style="border-bottom:1px solid var(--line); padding-bottom:10px;">
              <span>Mês</span><span>Entradas Totais</span><span>Saídas Totais</span><span>Sobra Projetada</span>
            </div>`;
   let sumE = 0, sumS = 0, sumSob = 0;
@@ -739,7 +738,7 @@ function renderYearView() {
   for(let m = 1; m <= 12; m++) {
     const k = keyFromParts(year, m); const mData = db.months[k];
     if(!mData) {
-      html += `<div class="row" style="grid-template-columns: 80px 1fr 1fr 1fr; opacity:0.3; border-bottom:1px solid rgba(255,255,255,0.02); background:none;">
+      html += `<div class="row" style="opacity:0.3; border-bottom:1px solid rgba(255,255,255,0.02); background:none;">
                  <div style="font-family:var(--mono); padding-left:6px;">${MONTH_NAMES[m-1].substring(0,3)}</div><div>-</div><div>-</div><div>-</div>
                </div>`;
     } else {
@@ -749,14 +748,14 @@ function renderYearView() {
       const sCom = mData.foodEntries.reduce((a,b)=>a+(Number(b.value)||0),0);
       const totS = sF + sCom; const sob = totE - totS;
       sumE += totE; sumS += totS; sumSob += sob;
-      html += `<div class="row" style="grid-template-columns: 80px 1fr 1fr 1fr; border-bottom:1px solid rgba(255,255,255,0.04);">
+      html += `<div class="row" style="border-bottom:1px solid rgba(255,255,255,0.04);">
                  <div style="font-family:var(--mono); font-weight:600; padding-left:6px;">${MONTH_NAMES[m-1].substring(0,3)}</div>
                  <div class="pos">${brl(totE)}</div><div class="neg">${brl(totS)}</div>
                  <div class="${sob >= 0 ? 'pos' : 'neg'} font-weight:600;">${brl(sob)}</div>
                </div>`;
     }
   }
-  html += `<div class="row" style="grid-template-columns: 80px 1fr 1fr 1fr; border-top:2px dashed var(--line); padding-top:16px; margin-top:10px; border-bottom:none; background:none;">
+  html += `<div class="row" style="border-top:2px dashed var(--line); padding-top:16px; margin-top:10px; border-bottom:none; background:none;">
              <div style="font-family:var(--mono); padding-left:6px;"><b>TOTAL</b></div>
              <div class="pos"><b>${brl(sumE)}</b></div><div class="neg"><b>${brl(sumS)}</b></div>
              <div class="${sumSob >= 0 ? 'pos' : 'neg'}"><b>${brl(sumSob)}</b></div>
@@ -791,19 +790,19 @@ function renderFreelas(month){
   month.freelas.forEach((f, i) => {
     const isCustom = f.type && !FREELA_TYPES.includes(f.type);
     const row = document.createElement('div'); row.className = 'row freela-row';
-    row.innerHTML = `<input type="number" min="1" max="31" data-i="${i}" data-field="workDay" value="${f.workDay||''}" placeholder="dia">
-      <input type="number" min="1" max="31" data-i="${i}" data-field="payDay" value="${f.payDay||''}" placeholder="dia">
+    row.innerHTML = `<input type="number" min="1" max="31" data-i="${i}" data-field="workDay" value="${f.workDay||''}" placeholder="Dia (Execução)">
+      <input type="number" min="1" max="31" data-i="${i}" data-field="payDay" value="${f.payDay||''}" placeholder="Dia (Pagto)">
       
       <div style="display:flex; flex-direction:column; gap:6px;">
         <select data-i="${i}" data-field="typeSelect" class="type-select">
           ${FREELA_TYPES.map(t => `<option value="${t}" ${f.type===t?'selected':''}>${t}</option>`).join('')}
           <option value="Outro" ${isCustom?'selected':''}>Outro (escrever)</option>
         </select>
-        <input type="text" data-i="${i}" data-field="typeCustom" value="${isCustom ? f.type : ''}" placeholder="Qual?" style="display:${isCustom?'block':'none'}; font-size:12px; padding:6px 10px;">
+        <input type="text" data-i="${i}" data-field="typeCustom" value="${isCustom ? f.type : ''}" placeholder="Qual?" style="display:${isCustom?'block':'none'}; font-size:13px;">
       </div>
 
-      <input type="text" data-i="${i}" data-field="client" value="${f.client||''}" placeholder="cliente">
-      <input type="number" step="0.01" data-i="${i}" data-field="value" value="${f.value||''}" placeholder="0,00">
+      <input type="text" data-i="${i}" data-field="client" value="${f.client||''}" placeholder="Cliente / Projeto">
+      <input type="number" step="0.01" data-i="${i}" data-field="value" value="${f.value||''}" placeholder="R$ 0,00">
       <button class="del-btn" data-i="${i}">×</button>`;
     list.appendChild(row);
   });
@@ -831,19 +830,19 @@ function renderFreelas(month){
   bindListEvents(list, month.freelas, ['value','workDay','payDay'], false, true);
 }
 
-function renderCasa(month){ renderSimpleList(month.casa, 'casaList', month, CASA_CATEGORIES, 'venc.'); }
-function renderCredits(month){ renderSimpleList(month.credits, 'creditList', month, null, 'venc.'); }
-function renderOutros(month){ renderSimpleList(month.outros, 'outrosList', month, OUTROS_CATEGORIES, 'data'); }
+function renderCasa(month){ renderSimpleList(month.casa, 'casaList', month, CASA_CATEGORIES, 'Dia Venc.'); }
+function renderCredits(month){ renderSimpleList(month.credits, 'creditList', month, null, 'Dia Venc.'); }
+function renderOutros(month){ renderSimpleList(month.outros, 'outrosList', month, OUTROS_CATEGORIES, 'Data'); }
 
 function renderSimpleList(items, elId, month, suggestions, dayPlaceholder){
   const list = document.getElementById(elId); list.innerHTML = '';
   items.forEach((it, i) => {
     const row = document.createElement('div'); row.className = 'row expense-row';
-    const labelInput = suggestions ? `<input type="text" list="dl-${elId}" data-i="${i}" data-field="label" value="${it.label||''}" placeholder="categoria">` : `<input type="text" data-i="${i}" data-field="label" value="${it.label||''}" placeholder="descrição">`;
+    const labelInput = suggestions ? `<input type="text" list="dl-${elId}" data-i="${i}" data-field="label" value="${it.label||''}" placeholder="Categoria">` : `<input type="text" data-i="${i}" data-field="label" value="${it.label||''}" placeholder="Descrição">`;
     row.innerHTML = `${labelInput}
-      <input type="number" step="0.01" data-i="${i}" data-field="value" value="${it.value||''}" placeholder="0,00">
+      <input type="number" step="0.01" data-i="${i}" data-field="value" value="${it.value||''}" placeholder="R$ 0,00">
       <input type="number" min="1" max="31" data-i="${i}" data-field="dueDay" value="${it.dueDay||''}" placeholder="${dayPlaceholder}">
-      <div class="paid-toggle ${it.paid?'paid':''}" data-i="${i}">${it.paid?'PAGO':'pendente'}</div>
+      <div class="paid-toggle ${it.paid?'paid':''}" data-i="${i}">${it.paid?'PAGO':'PENDENTE'}</div>
       <button class="del-btn" data-i="${i}">×</button>`;
     list.appendChild(row);
   });
@@ -861,10 +860,10 @@ function renderSubs(month, year, m){
     if(s.paid === undefined) s.paid = false;
     if(isCurrentMonth && s.day && today.getDate() >= Number(s.day) && s.userSetPaid !== true && s.userSetPaid !== false) s.paid = true;
     const row = document.createElement('div'); row.className = 'row sub-row';
-    row.innerHTML = `<input type="text" data-i="${i}" data-field="label" value="${s.label||''}" placeholder="serviço">
-      <input type="number" step="0.01" data-i="${i}" data-field="value" value="${s.value||''}" placeholder="0,00">
-      <input type="number" min="1" max="31" data-i="${i}" data-field="day" value="${s.day||''}" placeholder="dia">
-      <div class="paid-toggle ${s.paid?'paid':''}" data-i="${i}">${s.paid?'PAGO':'pendente'}</div>
+    row.innerHTML = `<input type="text" data-i="${i}" data-field="label" value="${s.label||''}" placeholder="Serviço">
+      <input type="number" step="0.01" data-i="${i}" data-field="value" value="${s.value||''}" placeholder="R$ 0,00">
+      <input type="number" min="1" max="31" data-i="${i}" data-field="day" value="${s.day||''}" placeholder="Dia">
+      <div class="paid-toggle ${s.paid?'paid':''}" data-i="${i}">${s.paid?'PAGO':'PENDENTE'}</div>
       <button class="del-btn" data-i="${i}">×</button>`;
     list.appendChild(row);
   });
@@ -874,10 +873,10 @@ function renderSubs(month, year, m){
 function renderFoodEntries(month){
   const list = document.getElementById('foodEntryList'); list.innerHTML = '';
   month.foodEntries.forEach((f, i) => {
-    const row = document.createElement('div'); row.className = 'row'; row.style.gridTemplateColumns = '90px 1fr 100px 32px';
-    row.innerHTML = `<input type="text" data-i="${i}" data-field="day" value="${f.day||''}" placeholder="data">
-      <input type="text" data-i="${i}" data-field="label" value="${f.label||''}" placeholder="ex: iFood">
-      <input type="number" step="0.01" data-i="${i}" data-field="value" value="${f.value||''}" placeholder="0,00">
+    const row = document.createElement('div'); row.className = 'row food-row'; 
+    row.innerHTML = `<input type="text" data-i="${i}" data-field="day" value="${f.day||''}" placeholder="Data">
+      <input type="text" data-i="${i}" data-field="label" value="${f.label||''}" placeholder="ex: iFood, Mercado...">
+      <input type="number" step="0.01" data-i="${i}" data-field="value" value="${f.value||''}" placeholder="R$ 0,00">
       <button class="del-btn" data-i="${i}">×</button>`;
     list.appendChild(row);
   });
@@ -1193,7 +1192,6 @@ function computeAll(month, year, m){
   
   const sim = simulateCashFlow(month, year, m);
   
-  // Limite Diário travado em 0 se o fluxo de caixa DE HOJE estiver negativo
   const dailyLimit = sim.balanceToday < 0 ? 0 : Math.max(foodRemaining, 0) / daysLeft;
   const foodPerDayInput = document.getElementById('foodPerDay');
   foodPerDayInput.value = brl(dailyLimit); foodPerDayInput.style.color = dailyLimit > 0 ? 'var(--accent)' : 'var(--red)';
