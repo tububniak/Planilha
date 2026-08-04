@@ -113,7 +113,7 @@
   .row.freela-row{ grid-template-columns: 78px 78px 1fr 1fr 110px 32px; align-items: start; }
   .row.expense-row{ grid-template-columns: 1fr 120px 80px 100px 32px; }
   .row.sub-row{ grid-template-columns: 1fr 110px 70px 100px 32px; }
-  .row.food-row{ grid-template-columns: 90px 1fr 100px 32px; } /* CORREÇÃO AQUI */
+  .row.food-row{ grid-template-columns: 90px 1fr 100px 32px; } 
   
   .fixed-row { grid-template-columns: 1fr 130px; border-bottom:none; padding-bottom:0; }
   .fixed-row > div { align-self: flex-end; }
@@ -163,7 +163,7 @@
   .val.pos{ color:var(--green); }
   .val.neg{ color:var(--red); }
 
-  .goal-toggle{ display:flex; gap:8px; margin-bottom:12px; }
+  .goal-toggle{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
   .goal-toggle button{
     flex:1; background:var(--bg-panel-2); border:1px solid var(--line); color:var(--ink-dim);
     padding:10px; border-radius:6px; cursor:pointer; font-family:var(--mono); font-size:12px; transition:all 0.2s;
@@ -266,19 +266,16 @@
     .month-nav { width: 100%; justify-content: space-between; }
     .reel-body { padding: 16px 12px; }
 
-    /* Remove a rolagem horizontal */
     .table-scroll { overflow-x: visible !important; padding-bottom: 0; }
     .min-w-row { min-width: 100% !important; }
     .col-label { display: none !important; }
 
-    /* Transforma as Linhas em Cards Empilhados */
     .row {
       display: flex !important; flex-wrap: wrap; gap: 8px; background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.05); padding: 14px; margin-bottom: 12px; border-radius: 8px;
     }
     .row > * { margin: 0 !important; }
 
-    /* Adaptação dos campos dentro do Card */
     .row.expense-row > input[data-field="label"],
     .row.sub-row > input[data-field="label"],
     .row.food-row > input[data-field="label"] { flex: 1 1 100%; font-weight: bold; font-size: 14px; }
@@ -293,30 +290,25 @@
     .row.expense-row > .paid-toggle,
     .row.sub-row > .paid-toggle { flex: 1 1 60%; height: 42px; font-size: 13px; }
 
-    /* Cards de Freelas */
     .row.freela-row > input[data-field="workDay"],
     .row.freela-row > input[data-field="payDay"] { flex: 1 1 40%; }
     .row.freela-row > div { flex: 1 1 100%; }
     .row.freela-row > input[data-field="client"] { flex: 1 1 100%; font-weight: bold; }
     .row.freela-row > input[data-field="value"] { flex: 1 1 auto; }
 
-    /* Botão Delete Gigante pro dedo */
     .row > .del-btn {
       flex: 0 0 42px; height: 42px; background: rgba(217,105,95,0.1); border-radius: 6px; color: var(--red);
       display: flex; align-items: center; justify-content: center;
     }
 
-    /* Linhas Fixas no Topo (Saldo / Renda Fixa) */
     .fixed-row { display: flex !important; flex-wrap: wrap; background: none; border: none; padding: 0; margin-bottom:20px; }
     .fixed-row > div { flex: 1 1 100%; margin-bottom: 6px; align-self: flex-start; }
     .fixed-row > input { flex: 1 1 100%; margin-bottom: 8px; }
 
-    /* Simulador Grid */
     .sim-purch-grid { display: flex !important; flex-wrap: wrap; }
     .sim-purch-grid > #simPurchDesc { flex: 1 1 100%; }
     .sim-purch-grid > #simPurchValue, .sim-purch-grid > #simPurchDay { flex: 1 1 40%; }
 
-    /* Tabela Anual */
     #yearTableContainer .col-label { display: grid !important; grid-template-columns: 50px 1fr 1fr 1fr; font-size: 9px; padding-bottom: 8px; }
     #yearTableContainer .row { display: grid !important; grid-template-columns: 50px 1fr 1fr 1fr !important; background: none; border: none; border-bottom: 1px solid rgba(255,255,255,0.04); padding: 12px 0; font-size: 12px; }
     #yearTableContainer .row > div { padding: 0; font-size: 11px; }
@@ -497,14 +489,20 @@
             </div>
             <div>
               <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--ink-dimmer); font-family:var(--mono); margin-bottom:8px;">Base de cálculo (Limite)</div>
-              <div class="goal-toggle" style="margin-bottom:0;">
-                <button id="foodModeTotal" style="padding:8px 12px; font-size:11px;">Mês Completo</button>
-                <button id="foodModeAtual" style="padding:8px 12px; font-size:11px;">Só Saldo Atual</button>
+              <div class="goal-toggle" style="margin-bottom:0; display:flex; gap:6px;">
+                <button id="foodModeTotal" style="padding:8px 6px; font-size:10px;">Mês Completo</button>
+                <button id="foodModeLivre" style="padding:8px 6px; font-size:10px;">Saldo Livre</button>
+                <button id="foodModeSeguro" style="padding:8px 6px; font-size:10px;">Saldo Seguro</button>
               </div>
             </div>
           </div>
 
-          <div id="foodDayHint" style="font-size:12px; color:var(--ink-dim); font-family:var(--mono); margin-bottom:16px;"></div>
+          <div id="foodDayHint" style="font-size:12px; color:var(--ink-dim); font-family:var(--mono); margin-bottom:12px;"></div>
+          <p style="font-size:11px; color:var(--ink-dimmer); margin:0 0 16px 0; font-family:var(--mono); line-height:1.6;">
+            💡 <b>Mês Completo:</b> Soma a renda inteira do mês e abate todas as contas.<br>
+            💡 <b>Saldo Livre:</b> Usa o seu saldo de HOJE descontando APENAS as contas "PAGAS".<br>
+            💡 <b>Saldo Seguro:</b> Usa o seu saldo de HOJE, mas já guarda o dinheiro de TODAS as faturas (pagas ou não).
+          </p>
 
           <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--ink-dim); font-family:var(--mono);">
             <span>Gasto até agora: <b id="foodSpentLabel" style="color:var(--ink)">R$ 0,00</b></span>
@@ -519,10 +517,6 @@
             </div>
           </div>
           
-          <p style="font-size:11px; color:var(--ink-dimmer); margin:10px 0 0; font-family:var(--mono); line-height:1.6;">
-            💡 <b>Dica:</b> Se você cozinhar ou não gastar tudo hoje, esse valor acumula e o seu limite diário nos próximos dias aumenta!
-          </p>
-
           <!-- SIMULADOR DE ALIMENTAÇÃO -->
           <div style="margin-top:20px; padding:16px; background:rgba(255,255,255,0.02); border-radius:6px; border:1px dashed rgba(255,255,255,0.1);">
             <div style="font-size:10px; text-transform:uppercase; letter-spacing:1px; color:var(--accent); font-family:var(--mono); margin-bottom:8px; font-weight:600;">Simulador: E se eu gastar X por dia?</div>
@@ -739,7 +733,12 @@ function emptyMonth(){
   };
 }
 
-function getMonth(key){ if(!db.months[key]){ db.months[key] = emptyMonth(); saveDB(); } return db.months[key]; }
+function getMonth(key){ 
+  if(!db.months[key]){ db.months[key] = emptyMonth(); saveDB(); } 
+  // Migração de dados de versões anteriores para manter compatibilidade
+  if(db.months[key].foodCalcMode === 'atual') db.months[key].foodCalcMode = 'seguro';
+  return db.months[key]; 
+}
 function getPreviousMonthKey(key){ const { year, month } = parseKey(key); const d = new Date(year, month-2, 1); return keyFromParts(d.getFullYear(), d.getMonth()+1); }
 
 function copyFromPreviousMonth(){
@@ -1063,7 +1062,7 @@ function updateFoodSim(month, daysLeft, foodBudget) {
   }
 }
 
-function updatePurchaseSim(month, year, m, foodBudget, foodSpent, daysLeft) {
+function updatePurchaseSim(month, year, m, foodSpent, daysLeft, totalSaidasFixas, totalSaidasPagas, goalInReais, totalEntradas) {
   const desc = document.getElementById('simPurchDesc').value || 'A Compra';
   const val = parseFloat(document.getElementById('simPurchValue').value);
   const pDay = parseInt(document.getElementById('simPurchDay').value);
@@ -1076,7 +1075,8 @@ function updatePurchaseSim(month, year, m, foodBudget, foodSpent, daysLeft) {
   const targetDay = Math.min(Math.max(pDay, 1), totalDays);
   
   let events = [...baseFlow.events];
-  let actualPurchaseDay = targetDay <= baseFlow.todayDay ? baseFlow.todayDay : targetDay;
+  let actualPurchaseDay = targetDay <= baseFlow.tomorrow ? baseFlow.tomorrow : targetDay;
+  if(targetDay === baseFlow.todayDay) actualPurchaseDay = baseFlow.todayDay; 
   
   let currentCash = baseFlow.balanceToday;
   if (actualPurchaseDay === baseFlow.todayDay) { currentCash -= val; } 
@@ -1127,11 +1127,11 @@ function updatePurchaseSim(month, year, m, foodBudget, foodSpent, daysLeft) {
   }
   timelineHTML += '</div>';
 
+  // FOOD LIMIT PROJECTION
   const foodMode = month.foodCalcMode || 'total';
-  const totalEntradas = sumList(month.freelas) + (Number(month.fixedIncomeValue)||0) + (Number(month.saldoAnterior)||0);
-  const totalSaidasFixas = sumList(month.casa) + sumList(month.subs) + sumList(month.credits) + sumList(month.outros);
-  const goalInReais = month.goalMode === 'pct' ? totalEntradas * (Number(month.goalValue)||0) / 100 : Number(month.goalValue)||0;
-  const saidasGlobais = totalSaidasFixas + goalInReais + val; 
+  let saidasGlobais = 0;
+  if(foodMode === 'total' || foodMode === 'seguro') saidasGlobais = totalSaidasFixas + goalInReais + val;
+  else saidasGlobais = totalSaidasPagas + goalInReais + val;
 
   let limitData = [];
   let tempCash = baseFlow.balanceToday;
@@ -1181,7 +1181,7 @@ function updatePurchaseSim(month, year, m, foodBudget, foodSpent, daysLeft) {
       }
   } else {
       if (limitToday === 0) {
-          foodText = `<div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1); font-size:12px; color:var(--red);">⚠️ <b>Atenção:</b> Com essa compra, seu saldo e orçamento não suportam mais gastos. O limite diário de alimentação ficará <b style="color:var(--red);">zerado</b> pelo restante do mês!</div>`;
+          foodText = `<div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1); font-size:12px; color:var(--red);">⚠️ <b>Atenção:</b> Com essa compra, seu saldo não suporta mais gastos. O limite diário de alimentação ficará <b style="color:var(--red);">zerado</b> pelo restante do mês!</div>`;
       } else {
           foodText = `<div style="margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1); font-size:12px; color:var(--ink-dim);">Com essa compra, o limite diário de alimentação passaria a ser <b style="color:var(--accent);">${brl(limitToday)}</b> pelo restante do mês.</div>`;
       }
@@ -1238,6 +1238,9 @@ function computeAll(month, year, m){
   let entradasRecebidas = freelasRecebidos;
   if(todayDay >= 1) entradasRecebidas += (Number(month.fixedIncomeValue)||0);
 
+  const sumPaid = (items) => items.filter(it => it.paid).reduce((a, b) => a + (Number(b.value)||0), 0);
+  const totalSaidasPagas = sumPaid(month.casa) + sumPaid(month.subs) + sumPaid(month.credits) + sumPaid(month.outros);
+
   const totalCasa = sumList(month.casa); const totalAssinaturas = sumList(month.subs);
   const totalCreditos = sumList(month.credits); const totalOutros = sumList(month.outros);
   const totalSaidasFixas = totalCasa + totalAssinaturas + totalCreditos + totalOutros;
@@ -1260,7 +1263,8 @@ function computeAll(month, year, m){
   document.getElementById('goalInReais').textContent = brl(goalInReais);
 
   const freeToSpendTotal = totalRendaTotal - totalSaidasFixas - goalInReais;
-  const freeToSpendAtual = totalRendaAtual - totalSaidasFixas - goalInReais;
+  const freeToSpendSeguro = totalRendaAtual - totalSaidasFixas - goalInReais;
+  const freeToSpendLivre = totalRendaAtual - totalSaidasPagas - goalInReais;
 
   const freeEl = document.getElementById('freeToSpend');
   freeEl.textContent = brl(freeToSpendTotal); freeEl.className = 'val ' + (freeToSpendTotal >= 0 ? 'pos' : 'neg');
@@ -1277,7 +1281,12 @@ function computeAll(month, year, m){
     alertBox.innerHTML = `<div class="cash-warning"><div class="icon">⚠️</div><div><b>Atenção:</b> Sua sobra projetada está <b>abaixo de 10%</b> do total que você vai receber no mês. Fique de olho pra não passar aperto financeiro!</div></div>`;
   } else { alertBox.innerHTML = ''; }
 
-  const foodBudget = month.foodCalcMode === 'total' ? Math.max(freeToSpendTotal, 0) : Math.max(freeToSpendAtual, 0);
+  const foodCalcMode = month.foodCalcMode || 'total';
+  let foodBudget = 0;
+  if (foodCalcMode === 'total') foodBudget = Math.max(freeToSpendTotal, 0);
+  else if (foodCalcMode === 'seguro') foodBudget = Math.max(freeToSpendSeguro, 0);
+  else foodBudget = Math.max(freeToSpendLivre, 0);
+
   const foodRemaining = foodBudget - foodSpent;
   document.getElementById('foodSpentLabel').textContent = brl(foodSpent);
   document.getElementById('foodBudgetLabel').textContent = brl(foodBudget);
@@ -1295,12 +1304,20 @@ function computeAll(month, year, m){
   
   const sim = simulateCashFlow(month, year, m);
   
-  const dailyLimit = sim.balanceToday < 0 ? 0 : Math.max(foodRemaining, 0) / daysLeft;
+  // Limite Diário (Se o modo for Seguro ou Total e o saldo de hoje estiver negativo, o limite de hj é 0)
+  // No modo Livre, deixamos a matemática do FreeToSpendLivre ditar se é 0 ou não.
+  let dailyLimit = 0;
+  if(sim.balanceToday < 0 && (foodCalcMode === 'seguro' || foodCalcMode === 'total')) {
+     dailyLimit = 0;
+  } else {
+     dailyLimit = Math.max(foodRemaining, 0) / daysLeft;
+  }
+  
   const foodPerDayInput = document.getElementById('foodPerDay');
   foodPerDayInput.value = brl(dailyLimit); foodPerDayInput.style.color = dailyLimit > 0 ? 'var(--accent)' : 'var(--red)';
 
   updateFoodSim(month, daysLeft, foodBudget);
-  updatePurchaseSim(month, year, m, foodBudget, foodSpent, daysLeft);
+  updatePurchaseSim(month, year, m, foodBudget, foodSpent, daysLeft, totalSaidasFixas, totalSaidasPagas, goalInReais, totalRendaTotal);
 
   renderPie([
     { label:'Casa', value: totalCasa, color:'#e07856' }, { label:'Assinaturas', value: totalAssinaturas, color:'#f2c14e' },
@@ -1400,7 +1417,9 @@ function setGoalMode(mode, persist=true){
 }
 function setFoodMode(mode, persist=true){
   const month = getMonth(currentKey); month.foodCalcMode = mode;
-  document.getElementById('foodModeTotal').classList.toggle('active', mode==='total'); document.getElementById('foodModeAtual').classList.toggle('active', mode==='atual');
+  document.getElementById('foodModeTotal').classList.toggle('active', mode==='total'); 
+  document.getElementById('foodModeLivre').classList.toggle('active', mode==='livre');
+  document.getElementById('foodModeSeguro').classList.toggle('active', mode==='seguro');
   if(persist){ saveDB(); computeAll(month, ...Object.values(parseKey(currentKey))); }
 }
 function setIncomeMode(mode, persist=true){
@@ -1507,7 +1526,8 @@ document.getElementById('addFoodEntry').addEventListener('click', () => { const 
 document.getElementById('goalModeReais').addEventListener('click', () => setGoalMode('reais'));
 document.getElementById('goalModePct').addEventListener('click', () => setGoalMode('pct'));
 document.getElementById('foodModeTotal').addEventListener('click', () => setFoodMode('total'));
-document.getElementById('foodModeAtual').addEventListener('click', () => setFoodMode('atual'));
+document.getElementById('foodModeLivre').addEventListener('click', () => setFoodMode('livre'));
+document.getElementById('foodModeSeguro').addEventListener('click', () => setFoodMode('seguro'));
 document.getElementById('incomeModeClient').addEventListener('click', () => setIncomeMode('client'));
 document.getElementById('incomeModeType').addEventListener('click', () => setIncomeMode('type'));
 
