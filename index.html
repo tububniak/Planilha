@@ -152,7 +152,12 @@
 
   /* Summary & Widgets */
   .splice-grid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:24px; }
-  
+  @media (max-width:768px){ 
+    .splice-grid{ grid-template-columns:1fr; }
+    .timeline-header { flex-direction:column; align-items:flex-start; gap:16px; }
+    .month-nav { width:100%; justify-content:space-between; }
+  }
+
   .stat-line{
     display:flex; justify-content:space-between; align-items:baseline; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:14px;
   }
@@ -398,7 +403,10 @@
           <button class="toggle-btn" title="Minimizar aba">▼</button>
           <h2>Gastos fixos · casa</h2>
         </div>
-        <div class="reel-total" id="totalCasa">R$ 0,00</div>
+        <div style="text-align: right;">
+          <div class="reel-total" id="totalCasa">R$ 0,00</div>
+          <div style="font-size: 10px; color: var(--ink-dimmer); font-family: var(--mono); font-weight: normal; margin-top: 2px;">Pago: <span id="pagoCasa" style="color: var(--green);">R$ 0,00</span></div>
+        </div>
       </div>
       <div class="reel-body">
         <div class="table-scroll">
@@ -418,7 +426,10 @@
           <button class="toggle-btn" title="Minimizar aba">▼</button>
           <h2>Assinaturas &amp; apps</h2>
         </div>
-        <div class="reel-total" id="totalAssinaturas">R$ 0,00</div>
+        <div style="text-align: right;">
+          <div class="reel-total" id="totalAssinaturas">R$ 0,00</div>
+          <div style="font-size: 10px; color: var(--ink-dimmer); font-family: var(--mono); font-weight: normal; margin-top: 2px;">Pago: <span id="pagoAssinaturas" style="color: var(--green);">R$ 0,00</span></div>
+        </div>
       </div>
       <div class="reel-body">
         <div class="table-scroll">
@@ -438,7 +449,10 @@
           <button class="toggle-btn" title="Minimizar aba">▼</button>
           <h2>Créditos &amp; parcelas</h2>
         </div>
-        <div class="reel-total" id="totalCreditos">R$ 0,00</div>
+        <div style="text-align: right;">
+          <div class="reel-total" id="totalCreditos">R$ 0,00</div>
+          <div style="font-size: 10px; color: var(--ink-dimmer); font-family: var(--mono); font-weight: normal; margin-top: 2px;">Pago: <span id="pagoCreditos" style="color: var(--green);">R$ 0,00</span></div>
+        </div>
       </div>
       <div class="reel-body">
         <div class="table-scroll">
@@ -458,7 +472,10 @@
           <button class="toggle-btn" title="Minimizar aba">▼</button>
           <h2>Outros gastos</h2>
         </div>
-        <div class="reel-total" id="totalOutros">R$ 0,00</div>
+        <div style="text-align: right;">
+          <div class="reel-total" id="totalOutros">R$ 0,00</div>
+          <div style="font-size: 10px; color: var(--ink-dimmer); font-family: var(--mono); font-weight: normal; margin-top: 2px;">Pago: <span id="pagoOutros" style="color: var(--green);">R$ 0,00</span></div>
+        </div>
       </div>
       <div class="reel-body">
         <div class="table-scroll">
@@ -875,14 +892,14 @@ function renderFreelas(month){
     });
   });
 
-  bindListEvents(list, month.freelas, ['value','workDay','payDay'], false, true);
+  bindListEvents(list, month.freelas, ['value','workDay','payDay'], false, true, 'payDay');
 }
 
-function renderCasa(month){ renderSimpleList(month.casa, 'casaList', month, CASA_CATEGORIES, 'Dia Venc.'); }
-function renderCredits(month){ renderSimpleList(month.credits, 'creditList', month, null, 'Dia Venc.'); }
-function renderOutros(month){ renderSimpleList(month.outros, 'outrosList', month, OUTROS_CATEGORIES, 'Data'); }
+function renderCasa(month){ renderSimpleList(month.casa, 'casaList', month, CASA_CATEGORIES, 'Dia Venc.', 'dueDay'); }
+function renderCredits(month){ renderSimpleList(month.credits, 'creditList', month, null, 'Dia Venc.', 'dueDay'); }
+function renderOutros(month){ renderSimpleList(month.outros, 'outrosList', month, OUTROS_CATEGORIES, 'Data', 'dueDay'); }
 
-function renderSimpleList(items, elId, month, suggestions, dayPlaceholder){
+function renderSimpleList(items, elId, month, suggestions, dayPlaceholder, sortField){
   const list = document.getElementById(elId); list.innerHTML = '';
   items.forEach((it, i) => {
     const row = document.createElement('div'); row.className = 'row expense-row';
@@ -898,7 +915,7 @@ function renderSimpleList(items, elId, month, suggestions, dayPlaceholder){
     const dl = document.createElement('datalist'); dl.id = `dl-${elId}`;
     dl.innerHTML = suggestions.map(s=>`<option value="${s}">`).join(''); list.appendChild(dl);
   }
-  bindListEvents(list, items, ['value', 'dueDay'], true);
+  bindListEvents(list, items, ['value', 'dueDay'], true, false, sortField);
 }
 
 function renderSubs(month, year, m){
@@ -915,7 +932,7 @@ function renderSubs(month, year, m){
       <button class="del-btn" data-i="${i}">×</button>`;
     list.appendChild(row);
   });
-  bindListEvents(list, month.subs, ['value', 'day'], true);
+  bindListEvents(list, month.subs, ['value', 'day'], true, false, 'day');
 }
 
 function renderFoodEntries(month){
@@ -928,19 +945,38 @@ function renderFoodEntries(month){
       <button class="del-btn" data-i="${i}">×</button>`;
     list.appendChild(row);
   });
-  bindListEvents(list, month.foodEntries, ['value']);
+  bindListEvents(list, month.foodEntries, ['value'], false, false, 'day');
 }
 
-function bindListEvents(list, items, numFields, hasPaidToggle = false, skipSelects = false){
+function bindListEvents(list, items, numFields, hasPaidToggle = false, skipSelects = false, sortField = null){
   list.querySelectorAll(skipSelects ? 'input' : 'input, select').forEach(el => {
     if(el.dataset.field === 'typeCustom') return; 
+    
     el.addEventListener('input', e => {
       const i = +e.target.dataset.i, field = e.target.dataset.field;
       if(field === 'typeSelect') return; 
       items[i][field] = numFields.includes(field) ? parseFloat(e.target.value)||0 : e.target.value;
       saveDB(); computeAll(getMonth(currentKey), ...Object.values(parseKey(currentKey)));
     });
+
+    if (sortField && el.dataset.field === sortField) {
+      el.addEventListener('change', e => {
+        const oldJson = JSON.stringify(items);
+        items.sort((a, b) => {
+          let d1 = parseInt(a[sortField], 10);
+          let d2 = parseInt(b[sortField], 10);
+          if(isNaN(d1)) d1 = 999; 
+          if(isNaN(d2)) d2 = 999;
+          return d1 - d2;
+        });
+        if(oldJson !== JSON.stringify(items)) {
+          saveDB();
+          render(); 
+        }
+      });
+    }
   });
+
   if(hasPaidToggle){
     list.querySelectorAll('.paid-toggle').forEach(el => {
       el.addEventListener('click', e => {
@@ -1194,11 +1230,18 @@ function computeAll(month, year, m){
   const totalRendaTotal = totalEntradas + (Number(month.saldoAnterior)||0);
   const totalRendaAtual = entradasRecebidas + (Number(month.saldoAnterior)||0);
 
+  // Inserindo os totais e os valores pagos até agora
   document.getElementById('totalEntradas').innerHTML = `<span style="color:var(--green)">${brl(totalRendaTotal)}</span>`;
   document.getElementById('totalCasa').innerHTML = `<span style="color:var(--red)">${brl(totalCasa)}</span>`;
   document.getElementById('totalAssinaturas').innerHTML = `<span style="color:var(--red)">${brl(totalAssinaturas)}</span>`;
   document.getElementById('totalCreditos').innerHTML = `<span style="color:var(--red)">${brl(totalCreditos)}</span>`;
   document.getElementById('totalOutros').innerHTML = `<span style="color:var(--red)">${brl(totalOutros)}</span>`;
+
+  document.getElementById('pagoCasa').textContent = brl(sumPaid(month.casa));
+  document.getElementById('pagoAssinaturas').textContent = brl(sumPaid(month.subs));
+  document.getElementById('pagoCreditos').textContent = brl(sumPaid(month.credits));
+  document.getElementById('pagoOutros').textContent = brl(sumPaid(month.outros));
+
   document.getElementById('sumEntradas').textContent = brl(totalRendaTotal);
   document.getElementById('sumSaidas').textContent = brl(totalSaidasFixas);
   document.getElementById('sumRecebido').textContent = brl(totalRendaAtual);
